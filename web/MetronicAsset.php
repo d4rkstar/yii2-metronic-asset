@@ -12,7 +12,7 @@ class MetronicAsset extends AssetBundle
 
     public $layout = 'layout';
 
-    public $skin = '';
+    public $theme = 'default';
 
     public $addons = [];
 
@@ -30,9 +30,9 @@ class MetronicAsset extends AssetBundle
 
         'assets/global/css/components-md.css',
         'assets/global/css/plugins-md.css',
-        'assets/admin/layout4/css/layout.css',
-        'assets/admin/layout4/css/themes/default.css',
-        'assets/admin/layout4/css/custom.css'
+        'assets/admin/[layout]/css/layout.css',
+        'assets/admin/[layout]/css/themes/[theme].css',
+        'assets/admin/[layout]/css/custom.css'
 
     ];
     public $js = [
@@ -48,8 +48,8 @@ class MetronicAsset extends AssetBundle
         'assets/global/plugins/uniform/jquery.uniform.min.js',
         'assets/global/plugins/bootstrap-switch/js/bootstrap-switch.min.js',
         'assets/global/scripts/metronic.js',
-        'assets/admin/layout4/scripts/layout.js',
-        'assets/admin/layout4/scripts/demo.js',
+        'assets/admin/[layout]/scripts/layout.js',
+        'assets/admin/[layout]/scripts/demo.js',
 
     ];
     public $depends = [
@@ -64,6 +64,11 @@ class MetronicAsset extends AssetBundle
      */
     public function init()
     {
+        $themes = [
+            'blue','dark','default','grey','light'
+        ];
+        if (!in_array($this->theme, $themes))
+            throw new yii\base\Exception("Theme {$this->theme} is not supported");
 
         parent::init();
 
@@ -78,9 +83,19 @@ class MetronicAsset extends AssetBundle
             }
         }
 
-        if ($this->skin!="") {
-            $this->css[] = "base/assets/skins/".$this->skin.".css";
+        // preprocess CSS
+        foreach($this->css as $k=>$v) {
+            $v = str_replace('[layout]',$this->layout,$v);
+            $v = str_replace('[theme]',$this->theme,$v);
+            $this->css[$k] = $v;
         }
+        // preprocess JS
+        foreach($this->js as $k=>$v) {
+            $v = str_replace('[layout]',$this->layout,$v);
+            $v = str_replace('[theme]',$this->theme,$v);
+            $this->js[$k] = $v;
+        }
+
 
     }
 }
